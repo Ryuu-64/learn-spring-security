@@ -39,15 +39,13 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        String username = request.getUsername() + "123";
-        //region AuthenticationException
+        String username = request.getUsername();
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         username,
                         request.getPassword()
                 )
         );
-        //endregion
         User requestUser = User
                 .builder()
                 .username(username)

@@ -2,7 +2,6 @@ package com.example.demo.filter;
 
 import com.example.demo.exception.RequestException;
 import com.example.demo.service.impl.JwtService;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-@AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
@@ -29,6 +27,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final String authorizationKey;
 
     private final String authorizationValuePrefix;
+
+    public JwtAuthenticationFilter(
+            JwtService jwtService,
+            UserDetailsService userDetailsService,
+            @Value("${jwt.authorization.key}") String authorizationKey,
+            @Value("${jwt.authorization.value-prefix}") String authorizationValuePrefix
+    ) {
+        this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
+        this.authorizationKey = authorizationKey;
+        this.authorizationValuePrefix = authorizationValuePrefix;
+    }
 
     @Override
     protected void doFilterInternal(

@@ -7,11 +7,15 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.jackson.io.JacksonSerializer;
 import io.jsonwebtoken.security.Keys;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,11 +23,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 @Service
-@AllArgsConstructor
 public class JwtService {
-    private static final String SECRET_KEY = "3273357638792F423F4528482B4D6251655468576D5A7133743677397A244326";
+    private final String signingKey;
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
+
+    public JwtService(
+            @Value("${jwt.signing-key}") String signingKey,
+            ObjectMapper objectMapper
+    ) {
+        this.signingKey = signingKey;
+        this.objectMapper = objectMapper;
+    }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         String usernameInToken = extractUsername(token);
@@ -69,12 +80,22 @@ public class JwtService {
                 .parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
+                // TODO catch SignatureException
+                //  SignatureException: JWT signature does not match locally computed signature.
+                //  JWT validity cannot be asserted and should not be trusted.
                 .parseClaimsJws(token)
                 .getBody();
     }
 
     private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-        return Keys.hmacShaKeyFor(keyBytes);
+        try {
+            byte[] keyBytes = signingKey.getBytes(StandardCharsets.UTF_8);
+            keyBytes = MessageDigest.getInstance("SHA-256").digest(keyBytes);
+            String base64Key = Base64.getUrlEncoder().encodeToString(keyBytes);
+            keyBytes = Decoders.BASE64URL.decode(base64Key);
+            return Keys.hmacShaKeyFor(keyBytes);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

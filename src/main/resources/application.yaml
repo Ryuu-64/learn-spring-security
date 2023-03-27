@@ -12,6 +12,7 @@ mybatis:
   mapper-locations: "classpath*:mapper/*xml"
 
 jwt:
+  signing-key: "spring-security-jwt"
   authorization:
     key: "Authorization"
-    valuePrefix: "Bearer "
+    value-prefix: "Bearer "
