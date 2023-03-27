@@ -1,8 +1,9 @@
-package com.example.demo.model.filter;
+package com.example.demo.filter;
 
+import com.example.demo.exception.RequestException;
 import com.example.demo.service.impl.JwtService;
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,7 +23,12 @@ import java.io.IOException;
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
+
     private final UserDetailsService userDetailsService;
+
+    private final String authorizationKey;
+
+    private final String authorizationValuePrefix;
 
     @Override
     protected void doFilterInternal(
@@ -30,14 +36,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        String authorization = request.getHeader("Authorization");
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
+        String authorization = request.getHeader(authorizationKey);
+        if (authorization == null || !authorization.startsWith(authorizationValuePrefix)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String jwt = authorization.substring(7);
         try {
+            String jwt = authorization.substring(authorizationValuePrefix.length());
             String userName = jwtService.extractUsername(jwt);
             if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
@@ -50,10 +56,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
             filterChain.doFilter(request, response);
-        } catch (ExpiredJwtException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RequestException("authorization failed", e);
         }
     }
 }
