@@ -8,11 +8,15 @@ spring:
     serialization:
       write-dates-as-timestamps: false
 
+server:
+  port: 8081
+
 mybatis:
   mapper-locations: "classpath*:mapper/*xml"
 
 jwt:
-  signing-key: "spring-security-jwt"
+  signing-key: "learn-spring-security"
+  expires-in: 30 # minutes
   authorization:
     key: "Authorization"
     value-prefix: "Bearer "
