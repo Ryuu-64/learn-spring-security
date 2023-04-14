@@ -1,4 +1,4 @@
-package org.ryuu.learn.springsecurity.model.auth;
+package org.ryuu.learn.springsecurity.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

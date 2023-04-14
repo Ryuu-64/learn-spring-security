@@ -1,10 +1,9 @@
 package org.ryuu.learn.springsecurity.controller;
 
+import org.ryuu.learn.springsecurity.dto.User;
 import org.ryuu.learn.springsecurity.exception.RequestException;
-import org.ryuu.learn.springsecurity.model.auth.AuthenticationRequest;
-import org.ryuu.learn.springsecurity.model.auth.AuthenticationResponse;
-import org.ryuu.learn.springsecurity.model.auth.RegisterRequest;
-import org.ryuu.learn.springsecurity.model.exception.RequestExceptionBody;
+import org.ryuu.learn.springsecurity.dto.auth.AuthenticationResponse;
+import org.ryuu.learn.springsecurity.dto.exception.RequestExceptionBody;
 import org.ryuu.learn.springsecurity.service.impl.AuthenticationService;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -18,16 +17,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("auth")
+@RequestMapping("authentication")
 public class AuthenticationController {
     private final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
-    private final AuthenticationService service;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public AuthenticationResponse register(@RequestBody RegisterRequest request) {
+    public AuthenticationResponse register(@RequestBody User user) {
         try {
-            return service.register(request);
+            return authenticationService.register(user);
         } catch (DuplicateKeyException e) {
             String invalidUserName = "register failed, invalid user name.";
             logger.warn(invalidUserName, e);
@@ -43,7 +42,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/authenticate")
-    public AuthenticationResponse register(@RequestBody AuthenticationRequest request) {
-        return service.authenticate(request);
+    public AuthenticationResponse authenticate(@RequestBody User user) {
+        return authenticationService.authenticate(user);
     }
 }

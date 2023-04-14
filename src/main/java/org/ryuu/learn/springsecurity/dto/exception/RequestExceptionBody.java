@@ -1,4 +1,4 @@
-package org.ryuu.learn.springsecurity.model.exception;
+package org.ryuu.learn.springsecurity.dto.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -3,17 +3,22 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.ryuu.learn.springsecurity.mapper.UserMapper">
-    <select id="selectAll" resultType="org.ryuu.learn.springsecurity.model.User">
+    <insert id="insert">
+        INSERT INTO users (username, password)
+        VALUES (#{username}, #{password});
+    </insert>
+    <select id="selectAll" resultType="org.ryuu.learn.springsecurity.dto.User">
         SELECT *
         FROM users;
     </select>
-    <select id="selectOne" resultType="org.ryuu.learn.springsecurity.model.User">
+    <select id="selectByUsername" resultType="org.ryuu.learn.springsecurity.dto.User">
         SELECT *
         FROM users
         WHERE username = #{username};
     </select>
-    <insert id="insert">
-        INSERT INTO users (username, password, enabled)
-        VALUES (#{username}, #{password}, #{enabled});
-    </insert>
+    <delete id="deleteByUsername">
+        DELETE
+        FROM users
+        WHERE username = #{username};
+    </delete>
 </mapper>

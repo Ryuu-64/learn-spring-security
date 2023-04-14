@@ -1,8 +1,8 @@
 package org.ryuu.learn.springsecurity.controller;
 
-import org.ryuu.learn.springsecurity.mapper.UserMapper;
 import lombok.AllArgsConstructor;
-import org.ryuu.learn.springsecurity.model.User;
+import org.ryuu.learn.springsecurity.dto.User;
+import org.ryuu.learn.springsecurity.service.impl.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,10 +14,10 @@ import java.util.List;
 @RestController
 @RequestMapping("user")
 public class UserController {
-    private UserMapper mapper;
+    private final UserService userService;
 
-    @PostMapping("/getAll")
-    public List<User> getAll() {
-        return mapper.selectAll();
+    @PostMapping("/queryAll")
+    public List<User> queryAll() {
+        return userService.queryAll();
     }
 }

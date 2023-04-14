@@ -1,6 +1,6 @@
 package org.ryuu.learn.springsecurity.exception;
 
-import org.ryuu.learn.springsecurity.model.exception.RequestExceptionBody;
+import org.ryuu.learn.springsecurity.dto.exception.RequestExceptionBody;
 import lombok.Getter;
 
 public class RequestException extends RuntimeException {

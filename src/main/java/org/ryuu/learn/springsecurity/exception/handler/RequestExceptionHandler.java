@@ -1,7 +1,7 @@
 package org.ryuu.learn.springsecurity.exception.handler;
 
 import org.ryuu.learn.springsecurity.exception.RequestException;
-import org.ryuu.learn.springsecurity.model.exception.RequestExceptionBody;
+import org.ryuu.learn.springsecurity.dto.exception.RequestExceptionBody;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

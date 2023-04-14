@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ryuu.learn.springsecurity.mapper.AuthorityMapper">
+    <insert id="insert">
+        INSERT INTO authorities(username, authority)
+        VALUES (#{username}, #{authority});
+    </insert>
+    <select id="selectByUsername" resultType="org.ryuu.learn.springsecurity.dto.Authority">
+        SELECT *
+        FROM authorities
+        WHERE username = #{username};
+    </select>
+    <select id="selectByAuthority" resultType="org.ryuu.learn.springsecurity.dto.Authority">
+        SELECT *
+        FROM authorities
+        WHERE authority = #{authority};
+    </select>
+    <delete id="delete">
+        DELETE
+        FROM authorities
+        WHERE username = #{username}
+          AND authority = #{authority};
+    </delete>
+</mapper>

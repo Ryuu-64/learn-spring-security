@@ -1,5 +1,6 @@
 package org.ryuu.learn.springsecurity.filter;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import org.ryuu.learn.springsecurity.service.impl.JwtService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
@@ -52,7 +53,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String jwt = authorization.substring(authorizationValuePrefix.length());
-        String userName = jwtService.getSubject(jwt);
+        String userName;
+        try {
+            userName = jwtService.getSubject(jwt);
+        } catch (ExpiredJwtException e) {
+            return;
+        }
         if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
             if (jwtService.isTokenValid(jwt, userDetails)) {
