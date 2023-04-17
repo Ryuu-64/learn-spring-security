@@ -9,3 +9,5 @@
 [Salt (cryptography)](https://en.wikipedia.org/wiki/Salt_(cryptography))
 
 [Spring Security and Shiro Google Trends](https://trends.google.com/trends/explore?cat=5&date=today%205-y&q=Spring%20Security,Shiro&hl=en)
+
+[Session fixation](https://en.wikipedia.org/wiki/Session_fixation)

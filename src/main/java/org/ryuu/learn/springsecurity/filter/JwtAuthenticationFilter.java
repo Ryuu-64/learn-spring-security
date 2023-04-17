@@ -14,12 +14,15 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -67,27 +70,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             userName = jwtService.getSubject(jwt);
         } catch (ExpiredJwtException e) {
-            String message = "token expired";
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            objectMapper.writeValue(
-                    response.getOutputStream(),
-                    new RequestExceptionBody(HttpStatus.UNAUTHORIZED, message)
-            );
-            logger.warn(message, e);
+            setResponseWhenJwtExpired(response);
+            logger.warn("token expired", e);
             return;
         }
 
-        if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userService.loadUserByUsername(userName);
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails.getUsername(), null, userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
-        }
+        trySetAuthentication(userName, jwt, request);
         filterChain.doFilter(request, response);
+    }
+
+    private void setResponseWhenJwtExpired(HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        objectMapper.writeValue(
+                response.getOutputStream(),
+                new RequestExceptionBody(HttpStatus.UNAUTHORIZED, "token expired")
+        );
+    }
+
+    /**
+     * see also {@link AuthorizationFilter#doFilter(ServletRequest, ServletResponse, FilterChain)}
+     */
+    private void trySetAuthentication(String userName, String jwt, HttpServletRequest request) {
+        if (userName == null || SecurityContextHolder.getContext().getAuthentication() != null) {
+            return;
+        }
+
+        UserDetails userDetails = this.userService.loadUserByUsername(userName);
+        if (!jwtService.isTokenValid(jwt, userDetails)) {
+            return;
+        }
+
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                userDetails.getUsername(), null, userDetails.getAuthorities()
+        );
+        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 }
