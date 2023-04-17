@@ -13,5 +13,7 @@ public interface AuthorityMapper {
 
     List<Authority> selectByAuthority(String authority);
 
-    int delete(Authority authority);
+    int deleteByAuthority(Authority authority);
+
+    int deleteByUsername(String username);
 }

@@ -17,10 +17,15 @@
         FROM authorities
         WHERE authority = #{authority};
     </select>
-    <delete id="delete">
+    <delete id="deleteByAuthority">
         DELETE
         FROM authorities
         WHERE username = #{username}
           AND authority = #{authority};
+    </delete>
+    <delete id="deleteByUsername">
+        DELETE
+        FROM authorities
+        WHERE username = #{username};
     </delete>
 </mapper>

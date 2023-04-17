@@ -16,6 +16,6 @@ public class AuthorityController {
 
     @PostMapping("/delete")
     public int delete(@RequestBody Authority authority) {
-        return authorityService.delete(authority);
+        return authorityService.deleteByAuthority(authority);
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 class AuthorityServiceTest {
@@ -19,12 +19,12 @@ class AuthorityServiceTest {
     private final String authority = "admin";
 
     @Test
-    void insert() {
+    void create() {
         Authority authority = new Authority();
         authority.setUsername(username);
         authority.setAuthority(this.authority);
-        authorityService.delete(authority);
-        int rowsAffected = authorityService.insert(authority);
+        authorityService.deleteByAuthority(authority);
+        int rowsAffected = authorityService.create(authority);
         assertEquals(1, rowsAffected);
     }
 
@@ -33,7 +33,7 @@ class AuthorityServiceTest {
         Authority authority = new Authority();
         authority.setUsername(username);
         authority.setAuthority(this.authority);
-        authorityService.insert(authority);
+        authorityService.create(authority);
         List<Authority> authorities = authorityService.queryByUsername(username);
         Authority resAuthority = authorities
                 .stream()
@@ -48,7 +48,7 @@ class AuthorityServiceTest {
         Authority authority = new Authority();
         authority.setUsername(username);
         authority.setAuthority(this.authority);
-        authorityService.insert(authority);
+        authorityService.create(authority);
         List<Authority> authorities = authorityService.queryByAuthority(this.authority);
         Authority resAuthority = authorities
                 .stream()
@@ -59,12 +59,28 @@ class AuthorityServiceTest {
     }
 
     @Test
-    void delete() {
+    void deleteByAuthority() {
         Authority authority = new Authority();
         authority.setUsername(username);
-        authority.setAuthority("admin");
-        authorityService.insert(authority);
-        int rowsAffected = authorityService.delete(authority);
+        authority.setAuthority(this.authority);
+        authorityService.create(authority);
+        int rowsAffected = authorityService.deleteByAuthority(authority);
         assertEquals(1, rowsAffected);
+    }
+
+    @Test
+    void deleteByUsername() {
+        Authority authority1 = new Authority();
+        authority1.setUsername(username);
+        authority1.setAuthority("admin");
+        authorityService.create(authority1);
+
+        Authority authority2 = new Authority();
+        authority2.setUsername(username);
+        authority2.setAuthority("member");
+        authorityService.create(authority2);
+
+        int rowsAffected = authorityService.deleteByUsername(username);
+        assertEquals(2, rowsAffected);
     }
 }

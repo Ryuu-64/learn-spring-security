@@ -7,14 +7,23 @@
         INSERT INTO users (username, password)
         VALUES (#{username}, #{password});
     </insert>
-    <select id="selectAll" resultType="org.ryuu.learn.springsecurity.dto.User">
-        SELECT *
-        FROM users;
-    </select>
-    <select id="selectByUsername" resultType="org.ryuu.learn.springsecurity.dto.User">
-        SELECT *
+    <resultMap id="userResultMap" type="org.ryuu.learn.springsecurity.dto.User">
+        <id property="username" column="username"/>
+        <result property="password" column="password"/>
+        <collection property="authorities" ofType="org.ryuu.learn.springsecurity.dto.Authority">
+            <result property="authority" column="authority"/>
+        </collection>
+    </resultMap>
+    <select id="selectAll" resultMap="userResultMap">
+        SELECT users.username, users.password, authorities.authority
         FROM users
-        WHERE username = #{username};
+                 LEFT JOIN authorities on users.username = authorities.username;
+    </select>
+    <select id="selectByUsername" resultMap="userResultMap">
+        SELECT users.username, users.password, authorities.authority
+        FROM users
+                 LEFT JOIN authorities on users.username = authorities.username
+        WHERE users.username = #{username};
     </select>
     <delete id="deleteByUsername">
         DELETE

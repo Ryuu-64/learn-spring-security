@@ -27,15 +27,19 @@ public class JwtService {
 
     private final int expiresIn;
 
+    private final TimeUnit expiresInTimeUnit;
+
     private final ObjectMapper objectMapper;
 
     public JwtService(
             @Value("${jwt.signing-key}") String signingKey,
             @Value("${jwt.expires-in}") int expiresIn,
+            @Value("${jwt.expires-in-unit}") TimeUnit expiresInTimeUnit,
             ObjectMapper objectMapper
     ) {
         this.signingKey = signingKey;
         this.expiresIn = expiresIn;
+        this.expiresInTimeUnit = expiresInTimeUnit;
         this.objectMapper = objectMapper;
     }
 
@@ -76,7 +80,7 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(expiresIn)))
+                .setExpiration(new Date(System.currentTimeMillis() + expiresInTimeUnit.toMillis(expiresIn)))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .serializeToJsonWith(new JacksonSerializer<>(objectMapper))
                 .compact();

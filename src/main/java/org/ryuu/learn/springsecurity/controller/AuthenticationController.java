@@ -1,15 +1,16 @@
 package org.ryuu.learn.springsecurity.controller;
 
+import lombok.AllArgsConstructor;
 import org.ryuu.learn.springsecurity.dto.User;
-import org.ryuu.learn.springsecurity.exception.RequestException;
 import org.ryuu.learn.springsecurity.dto.auth.AuthenticationResponse;
 import org.ryuu.learn.springsecurity.dto.exception.RequestExceptionBody;
+import org.ryuu.learn.springsecurity.exception.RequestException;
 import org.ryuu.learn.springsecurity.service.impl.AuthenticationService;
-import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,13 +29,6 @@ public class AuthenticationController {
         try {
             return authenticationService.register(user);
         } catch (DuplicateKeyException e) {
-            String invalidUserName = "register failed, invalid user name.";
-            logger.warn(invalidUserName, e);
-            throw new RequestException(new RequestExceptionBody(
-                    HttpStatus.CONFLICT,
-                    invalidUserName
-            ), e);
-        } catch (Exception e) {
             String registerFailed = "register failed";
             logger.warn(registerFailed, e);
             throw new RequestException(new RequestExceptionBody(registerFailed), e);
@@ -43,6 +37,10 @@ public class AuthenticationController {
 
     @PostMapping("/authenticate")
     public AuthenticationResponse authenticate(@RequestBody User user) {
-        return authenticationService.authenticate(user);
+        try {
+            return authenticationService.authenticate(user);
+        } catch (AuthenticationException e) {
+            throw new RequestException(new RequestExceptionBody(HttpStatus.UNAUTHORIZED, "authenticate failed"), e);
+        }
     }
 }

@@ -1,13 +1,19 @@
 package org.ryuu.learn.springsecurity.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
+import org.ryuu.learn.springsecurity.dto.exception.RequestExceptionBody;
 import org.ryuu.learn.springsecurity.service.impl.JwtService;
+import org.ryuu.learn.springsecurity.service.impl.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -22,7 +28,9 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
-    private final UserDetailsService userDetailsService;
+    private final UserService userService;
+
+    private final ObjectMapper objectMapper;
 
     private final String authorizationKey;
 
@@ -30,12 +38,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     public JwtAuthenticationFilter(
             JwtService jwtService,
-            UserDetailsService userDetailsService,
+            UserService userService,
+            @Autowired @Qualifier("defaultObjectMapper") ObjectMapper objectMapper,
             @Value("${jwt.authorization.key}") String authorizationKey,
             @Value("${jwt.authorization.value-prefix}") String authorizationValuePrefix
     ) {
         this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
+        this.userService = userService;
+        this.objectMapper = objectMapper;
         this.authorizationKey = authorizationKey;
         this.authorizationValuePrefix = authorizationValuePrefix;
     }
@@ -57,10 +67,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             userName = jwtService.getSubject(jwt);
         } catch (ExpiredJwtException e) {
+            String message = "token expired";
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            objectMapper.writeValue(
+                    response.getOutputStream(),
+                    new RequestExceptionBody(HttpStatus.UNAUTHORIZED, message)
+            );
+            logger.warn(message, e);
             return;
         }
+
         if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
+            UserDetails userDetails = this.userService.loadUserByUsername(userName);
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails.getUsername(), null, userDetails.getAuthorities()

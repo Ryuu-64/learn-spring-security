@@ -5,6 +5,7 @@ import org.ryuu.learn.springsecurity.dto.Authority;
 import org.ryuu.learn.springsecurity.mapper.AuthorityMapper;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
 public class AuthorityService {
     private final AuthorityMapper authorityMapper;
 
-    int insert(Authority authority) {
+    int create(Authority authority) {
         try {
             return authorityMapper.insert(authority);
         } catch (DuplicateKeyException e) {
@@ -29,7 +30,12 @@ public class AuthorityService {
         return authorityMapper.selectByAuthority(authority);
     }
 
-    public int delete(Authority authority) {
-        return authorityMapper.delete(authority);
+    public int deleteByAuthority(Authority authority) {
+        return authorityMapper.deleteByAuthority(authority);
+    }
+
+    @Transactional
+    public int deleteByUsername(String username) {
+        return authorityMapper.deleteByUsername(username);
     }
 }

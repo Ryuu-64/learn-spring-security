@@ -1,9 +1,10 @@
 package org.ryuu.learn.springsecurity.dto;
 
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
 
 @Data
-public class Authority {
+public class Authority implements GrantedAuthority {
     private String username;
     private String authority;
 }

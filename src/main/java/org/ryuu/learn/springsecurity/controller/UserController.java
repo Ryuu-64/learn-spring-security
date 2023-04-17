@@ -3,12 +3,9 @@ package org.ryuu.learn.springsecurity.controller;
 import lombok.AllArgsConstructor;
 import org.ryuu.learn.springsecurity.dto.User;
 import org.ryuu.learn.springsecurity.service.impl.UserService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 
 @AllArgsConstructor
 @RestController
@@ -19,5 +16,10 @@ public class UserController {
     @PostMapping("/queryAll")
     public List<User> queryAll() {
         return userService.queryAll();
+    }
+
+    @PostMapping("/deleteUserWithAuthorities")
+    public int deleteUserWithAuthorities(@RequestBody String username) {
+        return userService.deleteUserWithAuthorities(username);
     }
 }

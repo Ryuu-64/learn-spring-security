@@ -16,7 +16,8 @@ mybatis:
 
 jwt:
   signing-key: "learn-spring-security"
-  expires-in: 30 # minutes
+  expires-in: 30
+  expires-in-unit: MINUTES # java.util.concurrent.TimeUnit
   authorization:
     key: "Authorization"
     value-prefix: "Bearer "

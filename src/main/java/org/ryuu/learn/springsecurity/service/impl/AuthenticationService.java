@@ -3,12 +3,8 @@ package org.ryuu.learn.springsecurity.service.impl;
 import lombok.AllArgsConstructor;
 import org.ryuu.learn.springsecurity.dto.User;
 import org.ryuu.learn.springsecurity.dto.auth.AuthenticationResponse;
-import org.ryuu.learn.springsecurity.dto.exception.RequestExceptionBody;
-import org.ryuu.learn.springsecurity.exception.RequestException;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,16 +28,12 @@ public class AuthenticationService {
 
     public AuthenticationResponse authenticate(User user) {
         String username = user.getUsername();
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            username,
-                            user.getPassword()
-                    )
-            );
-        } catch (AuthenticationException e) {
-            throw new RequestException(new RequestExceptionBody(HttpStatus.UNAUTHORIZED, "authenticate failed"), e);
-        }
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        username,
+                        user.getPassword()
+                )
+        );
         String token = jwtService.getToken(username);
         return new AuthenticationResponse(token);
     }
