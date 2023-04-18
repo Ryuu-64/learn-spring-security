@@ -1,7 +1,7 @@
 package org.ryuu.learn.springsecurity.configuration;
 
-import org.ryuu.learn.springsecurity.filter.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
+import org.ryuu.learn.springsecurity.filter.JwtAuthenticationFilter;
 import org.ryuu.learn.springsecurity.service.impl.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +30,7 @@ public class SecurityConfig {
         security.csrf().disable()
                 .authorizeHttpRequests()
                 .regexMatchers("/authentication/.*").permitAll()
+                .mvcMatchers("/user/deleteByUsername").hasAuthority("DELETE_MEMBER")
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement()

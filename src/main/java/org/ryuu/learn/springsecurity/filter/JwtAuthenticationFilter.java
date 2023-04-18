@@ -3,6 +3,7 @@ package org.ryuu.learn.springsecurity.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.ryuu.learn.springsecurity.dto.exception.RequestExceptionBody;
+import org.ryuu.learn.springsecurity.exception.RequestException;
 import org.ryuu.learn.springsecurity.service.impl.JwtService;
 import org.ryuu.learn.springsecurity.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,18 +41,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final String authorizationValuePrefix;
 
+    private final RoleHierarchy roleHierarchy;
+
     public JwtAuthenticationFilter(
             JwtService jwtService,
             UserService userService,
             @Autowired @Qualifier("defaultObjectMapper") ObjectMapper objectMapper,
             @Value("${jwt.authorization.key}") String authorizationKey,
-            @Value("${jwt.authorization.value-prefix}") String authorizationValuePrefix
+            @Value("${jwt.authorization.value-prefix}") String authorizationValuePrefix,
+            @Autowired RoleHierarchy roleHierarchy
     ) {
         this.jwtService = jwtService;
         this.userService = userService;
         this.objectMapper = objectMapper;
         this.authorizationKey = authorizationKey;
         this.authorizationValuePrefix = authorizationValuePrefix;
+        this.roleHierarchy = roleHierarchy;
     }
 
     @Override
@@ -66,26 +72,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String jwt = authorization.substring(authorizationValuePrefix.length());
-        String userName;
-        try {
-            userName = jwtService.getSubject(jwt);
-        } catch (ExpiredJwtException e) {
-            setResponseWhenJwtExpired(response);
-            logger.warn("token expired", e);
-            return;
-        }
-
-        trySetAuthentication(userName, jwt, request);
+        String subject = tryGetSubject(jwt, response);
+        trySetAuthentication(subject, jwt, request);
         filterChain.doFilter(request, response);
     }
 
-    private void setResponseWhenJwtExpired(HttpServletResponse response) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectMapper.writeValue(
-                response.getOutputStream(),
-                new RequestExceptionBody(HttpStatus.UNAUTHORIZED, "token expired")
-        );
+    private String tryGetSubject(String jwt, HttpServletResponse response) throws IOException {
+        try {
+            return jwtService.getSubject(jwt);
+        } catch (ExpiredJwtException e) {
+            RequestExceptionBody requestExceptionBody =
+                    new RequestExceptionBody(HttpStatus.UNAUTHORIZED, "token expired");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            objectMapper.writeValue(
+                    response.getOutputStream(),
+                    requestExceptionBody
+            );
+            RequestException requestException = new RequestException(requestExceptionBody, e);
+            logger.warn("token expired", requestException);
+            throw requestException;
+        }
     }
 
     /**
@@ -101,10 +108,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                userDetails.getUsername(), null, userDetails.getAuthorities()
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                userDetails.getUsername(), null,
+                roleHierarchy.getReachableGrantedAuthorities(userDetails.getAuthorities())
         );
-        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authToken);
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

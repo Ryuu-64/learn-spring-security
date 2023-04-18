@@ -15,14 +15,14 @@
         </collection>
     </resultMap>
     <select id="selectAll" resultMap="userResultMap">
-        SELECT users.username, users.password, authorities.authority
+        SELECT users.username, users.password, user_role.role AS authority
         FROM users
-                 LEFT JOIN authorities on users.username = authorities.username;
+                 LEFT JOIN user_role on users.username = user_role.username;
     </select>
     <select id="selectByUsername" resultMap="userResultMap">
-        SELECT users.username, users.password, authorities.authority
+        SELECT users.username, users.password, user_role.role AS authority
         FROM users
-                 LEFT JOIN authorities on users.username = authorities.username
+                 LEFT JOIN user_role on users.username = user_role.username
         WHERE users.username = #{username};
     </select>
     <delete id="deleteByUsername">

@@ -13,12 +13,12 @@ CREATE TABLE users
   CHARACTER SET utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS authorities;
-CREATE TABLE authorities
+DROP TABLE IF EXISTS user_role;
+CREATE TABLE user_role
 (
-    username  VARCHAR(50) NOT NULL,
-    authority VARCHAR(50) NOT NULL,
-    PRIMARY KEY (username, authority)
+    username VARCHAR(50) NOT NULL,
+    role     VARCHAR(50) NOT NULL,
+    PRIMARY KEY (username, role)
 ) ENGINE = InnoDB
   CHARACTER SET utf8mb4
   COLLATE = utf8mb4_unicode_ci;

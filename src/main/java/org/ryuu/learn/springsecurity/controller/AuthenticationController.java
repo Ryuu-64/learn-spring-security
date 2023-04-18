@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * TODO move try catch to {@link AuthenticationService}
+ */
 @AllArgsConstructor
 @RestController
 @RequestMapping("authentication")
@@ -29,9 +32,9 @@ public class AuthenticationController {
         try {
             return authenticationService.register(user);
         } catch (DuplicateKeyException e) {
-            String registerFailed = "register failed";
-            logger.warn(registerFailed, e);
-            throw new RequestException(new RequestExceptionBody(registerFailed), e);
+            String message = "register failed";
+            logger.warn(message, e);
+            throw new RequestException(new RequestExceptionBody(message), e);
         }
     }
 

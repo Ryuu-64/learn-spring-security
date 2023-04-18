@@ -7,6 +7,19 @@ spring:
   jackson:
     serialization:
       write-dates-as-timestamps: false
+  security:
+    default-role: ROLE_GUEST
+    default-role-hierarchy-map:
+      ROLE_ADMIN:
+        - ROLE_MANAGER
+        - SET_ROLE_MANAGER
+      ROLE_MANAGER:
+        - ROLE_MEMBER
+        - SET_ROLE_MEMBER
+        - DELETE_MEMBER
+      ROLE_MEMBER:
+        - ROLE_GUEST
+        - VIEW_MEMBER
 
 server:
   port: 8081
@@ -17,7 +30,7 @@ mybatis:
 jwt:
   signing-key: "learn-spring-security"
   expires-in: 30
-  expires-in-unit: MINUTES # java.util.concurrent.TimeUnit
+  expires-in-unit: DAYS # java.util.concurrent.TimeUnit
   authorization:
     key: "Authorization"
     value-prefix: "Bearer "

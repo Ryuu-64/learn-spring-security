@@ -2,7 +2,7 @@ package org.ryuu.learn.springsecurity.service.impl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.ryuu.learn.springsecurity.dto.Authority;
+import org.ryuu.learn.springsecurity.dto.UserRole;
 import org.ryuu.learn.springsecurity.dto.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +18,7 @@ class UserServiceTest {
     private UserService userService;
 
     @Autowired
-    private AuthorityService authorityService;
+    private UserRoleService userRoleService;
 
     private User user;
 
@@ -31,7 +31,7 @@ class UserServiceTest {
 
     @Test
     void create() {
-        userService.deleteUserWithAuthorities(user.getUsername());
+        userService.deleteByUsername(user.getUsername());
         int rowsAffected = userService.create(user);
         assertEquals(1, rowsAffected);
     }
@@ -54,20 +54,20 @@ class UserServiceTest {
     void deleteUserWithAuthorities() {
         userService.create(user);
 
-        Authority authority1 = new Authority();
-        authority1.setUsername(user.getUsername());
-        authority1.setAuthority("admin");
-        authorityService.create(authority1);
+        UserRole userRole1 = new UserRole();
+        userRole1.setUsername(user.getUsername());
+        userRole1.setRole("admin");
+        userRoleService.create(userRole1);
 
-        Authority authority2 = new Authority();
-        authority2.setUsername(user.getUsername());
-        authority2.setAuthority("member");
-        authorityService.create(authority2);
+        UserRole userRole2 = new UserRole();
+        userRole2.setUsername(user.getUsername());
+        userRole2.setRole("member");
+        userRoleService.create(userRole2);
 
-        int rowsAffected = userService.deleteUserWithAuthorities(user.getUsername());
+        int rowsAffected = userService.deleteByUsername(user.getUsername());
         assertEquals(1, rowsAffected);
 
-        List<Authority> authorities = authorityService.queryByUsername(user.getUsername());
+        List<UserRole> authorities = userRoleService.queryByUsername(user.getUsername());
         assertEquals(0, authorities.size());
     }
 }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ryuu.learn.springsecurity.mapper.UserRoleMapper">
+    <insert id="insert">
+        INSERT INTO user_role(username, role)
+        VALUES (#{username}, #{role});
+    </insert>
+    <select id="selectByUsername" resultType="org.ryuu.learn.springsecurity.dto.UserRole">
+        SELECT *
+        FROM user_role
+        WHERE username = #{username};
+    </select>
+    <select id="selectByRole" resultType="org.ryuu.learn.springsecurity.dto.UserRole">
+        SELECT *
+        FROM user_role
+        WHERE role = #{role};
+    </select>
+    <update id="update">
+        UPDATE user_role
+        SET role = #{role}
+        WHERE username = #{username};
+    </update>
+    <delete id="deleteByRole">
+        DELETE
+        FROM user_role
+        WHERE username = #{username}
+          AND role = #{role};
+    </delete>
+    <delete id="deleteByUsername">
+        DELETE
+        FROM user_role
+        WHERE username = #{username};
+    </delete>
+</mapper>

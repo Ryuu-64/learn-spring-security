@@ -5,6 +5,5 @@ import org.springframework.security.core.GrantedAuthority;
 
 @Data
 public class Authority implements GrantedAuthority {
-    private String username;
     private String authority;
 }
