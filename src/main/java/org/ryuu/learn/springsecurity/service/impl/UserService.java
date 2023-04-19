@@ -19,10 +19,10 @@ public class UserService implements UserDetailsService {
     private final UserRoleService userRoleService;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
         User user = queryByUsername(username);
         if (user == null) {
-            throw new UsernameNotFoundException("username not found");
+            throw new UsernameNotFoundException(username);
         }
         return user;
     }

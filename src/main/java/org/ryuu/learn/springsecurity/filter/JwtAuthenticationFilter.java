@@ -17,6 +17,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -76,7 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String jwt = authorization.substring(authorizationValuePrefix.length());
         String subject = tryGetSubject(jwt, response);
-        trySetAuthentication(subject, jwt, request);
+        trySetAuthentication(subject, jwt, request, response);
         filterChain.doFilter(request, response);
     }
 
@@ -97,12 +98,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     /**
      * see also {@link AuthorizationFilter#doFilter(ServletRequest, ServletResponse, FilterChain)}
      */
-    private void trySetAuthentication(String userName, String jwt, HttpServletRequest request) {
+    private void trySetAuthentication(
+            String userName, String jwt,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws IOException {
         if (userName == null || SecurityContextHolder.getContext().getAuthentication() != null) {
             return;
         }
 
-        UserDetails userDetails = this.userService.loadUserByUsername(userName);
+        UserDetails userDetails;
+        try {
+            userDetails = this.userService.loadUserByUsername(userName);
+        } catch (UsernameNotFoundException usernameNotFoundException) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            RequestException requestException = new RequestException(
+                    logger, HttpStatus.BAD_REQUEST, "username not found", usernameNotFoundException
+            );
+            objectMapper.writeValue(response.getOutputStream(), requestException.getRequestExceptionBody());
+            throw requestException;
+        }
+
         if (!jwtService.isTokenValid(jwt, userDetails)) {
             return;
         }

@@ -1,7 +1,7 @@
 package org.ryuu.learn.springsecurity.service.impl;
 
 import lombok.AllArgsConstructor;
-import org.ryuu.learn.springsecurity.component.AuthenticationContext;
+import org.ryuu.learn.springsecurity.util.AuthenticationUtils;
 import org.ryuu.learn.springsecurity.dto.UserRole;
 import org.ryuu.learn.springsecurity.exception.RequestException;
 import org.ryuu.learn.springsecurity.mapper.UserRoleMapper;
@@ -23,8 +23,6 @@ public class UserRoleService {
 
     private final UserRoleMapper userRoleMapper;
 
-    private final AuthenticationContext authenticationContext;
-
     @Transactional
     public int create(UserRole userRole) {
         try {
@@ -43,11 +41,14 @@ public class UserRoleService {
     }
 
     public int update(UserRole userRole) throws RequestException {
-        String role = userRole.getRole();
-        if (!authenticationContext.getAuthorities().contains("SET_" + role)) {
-            AccessDeniedException accessDeniedException = new AccessDeniedException(SecurityContextHolder.getContext().getAuthentication().toString());
+        if (!AuthenticationUtils.getAuthorities().contains("SET_" + userRole.getRole())) {
+            AccessDeniedException accessDeniedException = new AccessDeniedException(
+                    SecurityContextHolder.getContext().getAuthentication().toString()
+            );
             throw new RequestException(
-                    logger, HttpStatus.FORBIDDEN, "Insufficient permissions to perform authorization operation.", accessDeniedException
+                    logger, HttpStatus.FORBIDDEN,
+                    "Insufficient permissions to perform authorization operation.",
+                    accessDeniedException
             );
         }
 
