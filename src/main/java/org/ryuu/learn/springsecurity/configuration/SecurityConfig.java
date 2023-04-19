@@ -29,7 +29,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity security) throws Exception {
         security.csrf().disable()
                 .authorizeHttpRequests()
-                .regexMatchers("/authentication/.*").permitAll()
+                .mvcMatchers("/user/register").permitAll()
+                .mvcMatchers("/user/login").permitAll()
                 .mvcMatchers("/user/deleteByUsername").hasAuthority("DELETE_MEMBER")
                 .anyRequest().authenticated()
                 .and()

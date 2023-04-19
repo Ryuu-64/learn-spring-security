@@ -2,10 +2,11 @@ package org.ryuu.learn.springsecurity.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
-import org.ryuu.learn.springsecurity.dto.exception.RequestExceptionBody;
 import org.ryuu.learn.springsecurity.exception.RequestException;
 import org.ryuu.learn.springsecurity.service.impl.JwtService;
 import org.ryuu.learn.springsecurity.service.impl.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,8 @@ import java.io.IOException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
     private final JwtService jwtService;
 
     private final UserService userService;
@@ -80,17 +83,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String tryGetSubject(String jwt, HttpServletResponse response) throws IOException {
         try {
             return jwtService.getSubject(jwt);
-        } catch (ExpiredJwtException e) {
-            RequestExceptionBody requestExceptionBody =
-                    new RequestExceptionBody(HttpStatus.UNAUTHORIZED, "token expired");
+        } catch (ExpiredJwtException expiredJwtException) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            objectMapper.writeValue(
-                    response.getOutputStream(),
-                    requestExceptionBody
+            RequestException requestException = new RequestException(
+                    logger, HttpStatus.UNAUTHORIZED, "token expired", expiredJwtException
             );
-            RequestException requestException = new RequestException(requestExceptionBody, e);
-            logger.warn("token expired", requestException);
+            objectMapper.writeValue(response.getOutputStream(), requestException.getRequestExceptionBody());
             throw requestException;
         }
     }

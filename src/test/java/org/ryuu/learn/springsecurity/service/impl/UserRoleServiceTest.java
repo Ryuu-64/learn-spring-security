@@ -22,10 +22,19 @@ class UserRoleServiceTest {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private AuthenticationService authenticationService;
+
+    private User user;
+
     private UserRole userRole;
 
     @BeforeEach
     void setUp() {
+        user = new User();
+        user.setUsername("ryuu");
+        user.setPassword("42");
+
         userRole = new UserRole();
         userRole.setUsername("ryuu");
         userRole.setRole("ROLE_ADMIN");
@@ -69,7 +78,7 @@ class UserRoleServiceTest {
         User user = new User();
         user.setUsername(username);
         user.setPassword("114514");
-        userService.create(user);
+        authenticationService.register(user);
         UserRole userRole = new UserRole();
         userRole.setUsername(username);
         userRole.setRole("ROLE_MEMBER");
@@ -90,6 +99,7 @@ class UserRoleServiceTest {
 
     @Test
     void deleteByUsername() {
+        userService.deleteByUsername(user.getUsername());
         userRoleService.create(userRole);
 
         UserRole userRole2 = new UserRole();

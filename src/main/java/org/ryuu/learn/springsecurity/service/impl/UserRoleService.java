@@ -1,16 +1,16 @@
 package org.ryuu.learn.springsecurity.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.ryuu.learn.springsecurity.component.AuthenticationContext;
 import org.ryuu.learn.springsecurity.dto.UserRole;
-import org.ryuu.learn.springsecurity.dto.exception.RequestExceptionBody;
 import org.ryuu.learn.springsecurity.exception.RequestException;
 import org.ryuu.learn.springsecurity.mapper.UserRoleMapper;
-import org.ryuu.learn.springsecurity.component.AuthenticationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,16 +44,11 @@ public class UserRoleService {
 
     public int update(UserRole userRole) throws RequestException {
         String role = userRole.getRole();
-
         if (!authenticationContext.getAuthorities().contains("SET_" + role)) {
-            AccessDeniedException accessDeniedException =
-                    new AccessDeniedException("Insufficient permissions to perform authorization operation.");
-            RequestException requestException = new RequestException(
-                    new RequestExceptionBody(HttpStatus.FORBIDDEN, accessDeniedException.getMessage()),
-                    accessDeniedException
+            AccessDeniedException accessDeniedException = new AccessDeniedException(SecurityContextHolder.getContext().getAuthentication().toString());
+            throw new RequestException(
+                    logger, HttpStatus.FORBIDDEN, "Insufficient permissions to perform authorization operation.", accessDeniedException
             );
-            logger.warn(userRole.toString(), requestException);
-            throw requestException;
         }
 
         return userRoleMapper.update(userRole);

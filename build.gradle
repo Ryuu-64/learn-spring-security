@@ -12,12 +12,6 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
-
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
