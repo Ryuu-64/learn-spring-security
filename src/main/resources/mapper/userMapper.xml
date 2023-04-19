@@ -2,15 +2,15 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.ryuu.learn.springsecurity.mapper.UserMapper">
+<mapper namespace="org.ryuu.learn.spring.security.mapper.UserMapper">
     <insert id="insert">
         INSERT INTO users (username, password)
         VALUES (#{username}, #{password});
     </insert>
-    <resultMap id="userResultMap" type="org.ryuu.learn.springsecurity.dto.User">
+    <resultMap id="userResultMap" type="org.ryuu.learn.spring.security.dto.User">
         <id property="username" column="username"/>
         <result property="password" column="password"/>
-        <collection property="authorities" ofType="org.ryuu.learn.springsecurity.dto.Authority">
+        <collection property="authorities" ofType="org.ryuu.learn.spring.security.dto.Authority">
             <result property="authority" column="authority"/>
         </collection>
     </resultMap>
