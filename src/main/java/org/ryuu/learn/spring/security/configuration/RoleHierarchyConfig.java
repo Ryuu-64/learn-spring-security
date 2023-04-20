@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Configuration
-@ConfigurationProperties(value = "spring.security")
+@ConfigurationProperties(value = "security.role")
 @Data
 public class RoleHierarchyConfig {
     private final Map<String, List<String>> defaultRoleHierarchyMap;

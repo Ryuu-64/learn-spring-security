@@ -7,19 +7,6 @@ spring:
   jackson:
     serialization:
       write-dates-as-timestamps: false
-  security:
-    default-role: ROLE_GUEST
-    default-role-hierarchy-map:
-      ROLE_ADMIN:
-        - ROLE_MANAGER
-        - SET_ROLE_MANAGER
-      ROLE_MANAGER:
-        - ROLE_MEMBER
-        - SET_ROLE_MEMBER
-        - DELETE_MEMBER
-      ROLE_MEMBER:
-        - ROLE_GUEST
-        - VIEW_MEMBER
 
 server:
   port: 8081
@@ -34,3 +21,18 @@ jwt:
   authorization:
     key: "Authorization"
     value-prefix: "Bearer "
+
+security:
+  role:
+    default-role: ROLE_GUEST
+    default-role-hierarchy-map:
+      ROLE_ADMIN:
+        - ROLE_MANAGER
+        - SET_ROLE_MANAGER
+      ROLE_MANAGER:
+        - ROLE_MEMBER
+        - SET_ROLE_MEMBER
+        - DELETE_MEMBER
+      ROLE_MEMBER:
+        - ROLE_GUEST
+        - VIEW_MEMBER

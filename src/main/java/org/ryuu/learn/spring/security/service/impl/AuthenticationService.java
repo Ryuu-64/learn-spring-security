@@ -38,7 +38,7 @@ public class AuthenticationService {
             UserMapper userMapper,
             AuthenticationManager authenticationManager,
             PasswordEncoder passwordEncoder,
-            @Value("${spring.security.default-role}") String defaultRole
+            @Value("${security.role.default-role}") String defaultRole
     ) {
         this.jwtService = jwtService;
         this.userRoleService = userRoleService;
