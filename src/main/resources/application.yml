@@ -24,15 +24,15 @@ jwt:
 
 security:
   role:
-    default-role: ROLE_GUEST
+    default-role: "ROLE_GUEST"
     default-role-hierarchy-map:
       ROLE_ADMIN:
-        - ROLE_MANAGER
-        - SET_ROLE_MANAGER
+        - "ROLE_MANAGER"
+        - "SET_ROLE_MANAGER"
       ROLE_MANAGER:
-        - ROLE_MEMBER
-        - SET_ROLE_MEMBER
-        - DELETE_MEMBER
+        - "ROLE_MEMBER"
+        - "SET_ROLE_MEMBER"
+        - "DELETE_MEMBER"
       ROLE_MEMBER:
-        - ROLE_GUEST
-        - VIEW_MEMBER
+        - "ROLE_GUEST"
+        - "VIEW_MEMBER"
